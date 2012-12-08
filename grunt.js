@@ -4,7 +4,7 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: '<json:package.json>',
     test: {
-      files: ['test/**/*.js']
+      files: ['test/predicate_objects_test.js']
     },
     lint: {
       files: ['grunt.js', 'lib/**/*.js', 'test/**/*.js']
@@ -35,5 +35,5 @@ module.exports = function(grunt) {
 
   // Default task.
   grunt.registerTask('default', 'lint test');
-
+  grunt.loadNpmTasks('grunt-buster');
 };
