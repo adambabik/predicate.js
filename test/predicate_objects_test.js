@@ -1,102 +1,43 @@
-var predicate = require('../lib/predicate.js');
+buster.spec.expose();
 
-exports['object properties'] = {
-    setUp: function(done) {
-        done();
-    },
+describe("predicate.js with objects", function() {
+    var json;
 
-    'create predicate': function(test) {
-        var pred = predicate('path');
-        test.equal(typeof pred, 'function', 'Computed predicate should be a function');
-        test.done();
-    },
-
-    'predicate with one property': function(test) {
-        var p = predicate('path'),
-            testString = 'this is a path property',
-            o = { 'path': testString };
-
-        test.equal(p(o), testString, 'Predicate should get proper value');
-        test.done();
-    },
-
-    'predicate with multiple properties': function(test) {
-        var p = predicate('path.to.property'),
-            o = {
-                path: {
-                    to: {
-                        property: true
-                    }
+    beforeEach(function() {
+        json = {
+            gallery: {
+                title: "Test gallery",
+                date: "2011-12-12 22:33:02",
+                author: {
+                    name: "Johnny Novak",
+                    city: "New York"
                 }
-            };
-
-        var result = p(o);
-        test.equal(result, true, 'Predicate should get `true`');
-        test.done();
-    },
-
-    'multiple call generated predicate': function(test) {
-        var p = predicate('path.to.property'),
-            o = {
-                path: {
-                    to: {
-                        property: true
-                    }
-                }
-            };
-
-        test.equal(p(o), true, 'First call, predicate should get `true`');
-        test.equal(p(o), true, 'Second call, predicate should get `true`');
-        test.done();  
-    },
-
-    'conditional properties': function(test) {
-        var p = predicate('path.to?.property'),
-            properObj = {
-                path: {
-                    to: {
-                        property: true
-                    }
-                }
-            },
-            invalidObj = {
-                path: 'no path'
-            };
-
-        test.equal(p(properObj), true, 'Conditional predicate should return `true`');
-        test.equal(p(invalidObj), null, 'Condtional predicate should return `null`');
-        test.done();
-    },
-
-    'tricky values and properties': function(test) {
-        var p = predicate('path.to?.property?');
-
-        test.equal(p({
-            path: { 
-                to: null 
             }
-        }), null, 'Should return null');
+        };
+    });
 
-        test.equal(p({
-            path: null
-        }), null, 'Should return null');
+    it("access property on missing value wihout using Safe Navigation operator", function() {
+        var testPredicate = predicate("gallery.location.city");
+        expect(function() {
+            testPredicate(json);
+        }).toThrow("TypeError");
 
-        test.equal(p({
-            path: {
-                to: []
-            }
-        }), null);
+        testPredicate = predicate("test.test");
+        expect(function() {
+            testPredicate(json);
+        }).toThrow("TypeError"); 
 
-        test.throws(p({}), null, 'Should throw error');
+        testPredicate = predicate("test");
+        expect(testPredicate(json)).toBeNull();
+    });
 
-        p = predicate('my.array');
+    it("access existing property", function() {
+        var testPredicate = predicate("gallery.date");
+        expect(testPredicate(json)).toEqual("2011-12-12 22:33:02");
+    });
 
-        test.deepEqual(p({
-            my: {
-                array: [1,2,3]
-            }
-        }), [1,2,3], 'Should return array with proper values');
-
-        test.done();
-    }
-};
+    it("access non-existing property using Safe Navigation operator", function() {
+        var testPredicate = predicate("gallery.location?.city");
+        expect(testPredicate(json)).toBeNull();
+    });
+});
