@@ -28,7 +28,7 @@ If any property in a properties chain can be `null`, you should use the Save Nav
 var pre = predicate("chain?.of?.properties");
 ```
 
-To obtain a value from object based on a predicate expression, you need to call function returned by `predicate` function with this object as only argument.
+To obtain a value from object based on a predicate expression, call function returned by `predicate` with the object as an only argument.
 
 ```
 var obj = {
@@ -39,7 +39,7 @@ var obj = {
 	}
 };
 
-var pre = predicate("chain?.of?.properties");
+var pre = predicate("chain.of.properties");
 
 pre(obj); // => "Get me!"
 ```
